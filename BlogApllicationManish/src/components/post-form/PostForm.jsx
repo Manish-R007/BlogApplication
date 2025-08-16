@@ -36,7 +36,7 @@ export default function PostForm({ post }) {
       return;
     }
     try {
-      const url = await appwriteService.getFilePreview(fileId);
+      const url = await appwriteService.getFileView(fileId); // Note: Should be getFilePreview
       console.log("Image preview URL:", url);
       setImagePreviewUrl(url);
     } catch (error) {
@@ -125,6 +125,25 @@ export default function PostForm({ post }) {
     return () => subscription.unsubscribe();
   }, [watch, slugTransform, setValue]);
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+      if (!validTypes.includes(file.type)) {
+        console.error("Invalid file type. Use .jpg, .jpeg, or .png:", file.type);
+        return;
+      }
+      console.log("Selected file:", {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        lastModified: file.lastModified,
+      });
+    } else {
+      console.log("No file selected");
+    }
+  };
+
   return (
     <form
       onSubmit={handleSubmit((data) => {
@@ -165,19 +184,7 @@ export default function PostForm({ post }) {
           className="mb-4"
           accept="image/png, image/jpg, image/jpeg"
           {...register("image", { required: !post })}
-          onChange={(e) => {
-            const file = e.target.files[0];
-            if (file) {
-              console.log("Selected file:", {
-                name: file.name,
-                size: file.size,
-                type: file.type,
-                lastModified: file.lastModified,
-              });
-            } else {
-              console.log("No file selected");
-            }
-          }}
+          onChange={handleImageChange}
         />
         {post && imagePreviewUrl && (
           <div className="w-full mb-4">
