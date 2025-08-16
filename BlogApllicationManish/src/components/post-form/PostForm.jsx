@@ -31,19 +31,24 @@ export default function PostForm({ post }) {
   const [imagePreviewUrl, setImagePreviewUrl] = useState("");
 
   async function fetchImagePreview(fileId) {
-    if (!fileId) {
-      setImagePreviewUrl("");
-      return;
-    }
-    try {
-      const url = await appwriteService.getFileView(fileId); // Note: Should be getFilePreview
-      console.log("Image preview URL:", url);
-      setImagePreviewUrl(url);
-    } catch (error) {
-      console.error("Error fetching image preview URL:", error);
-      setImagePreviewUrl("");
-    }
+  if (!fileId) {
+    setImagePreviewUrl("");
+    console.log("No fileId provided for preview");
+    return;
   }
+  try {
+    const url = await appwriteService.getFilePreview(fileId);
+    console.log("Image preview URL:", url);
+    setImagePreviewUrl(url);
+  } catch (error) {
+    console.error("Error fetching image preview URL:", {
+      message: error.message,
+      code: error.code,
+      id: error.response?.id,
+    });
+    setImagePreviewUrl("");
+  }
+}
 
   useEffect(() => {
     if (post?.featuredImage) {
